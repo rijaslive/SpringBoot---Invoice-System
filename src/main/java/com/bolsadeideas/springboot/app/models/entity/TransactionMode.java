@@ -16,14 +16,14 @@ public class TransactionMode {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "transaction_mode_id", unique = true, nullable = false)
+    @Column(name = "transaction_mode_id")
     private Long transactionModeId;
 
     private String mode;
 
     private boolean enable;
 
-    @OneToMany(mappedBy = "transactionMode", fetch=FetchType.LAZY, cascade=CascadeType.ALL, orphanRemoval=true)
+    @OneToMany(mappedBy = "transactionMode", fetch=FetchType.LAZY)
     private List<CashBook> cashBooks;
 
 

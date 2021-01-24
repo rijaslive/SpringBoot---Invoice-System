@@ -56,27 +56,26 @@
 			<artifactId>spring-boot-devtools</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/com.h2database/h2 -->
-<!--		<dependency>
+		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<version>1.4.200</version>
-		</dependency>-->
+		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.apache.derby/derby -->
 		<!-- https://mvnrepository.com/artifact/org.apache.derby/derby -->
 		<!-- https://mvnrepository.com/artifact/org.apache.derby/derbyclient -->
-		<dependency>
+<!--		<dependency>
 			<groupId>org.apache.derby</groupId>
 			<artifactId>derbyclient</artifactId>
 			<version>10.14.2.0</version>
-		</dependency>
+		</dependency>-->
 
-		<dependency>
+			<dependency>
 			<groupId>org.thymeleaf.extras</groupId>
 			<artifactId>thymeleaf-extras-springsecurity4</artifactId>
 			<version>3.0.1.RELEASE</version>
-		</dependency>
+			</dependency>
 
 
 

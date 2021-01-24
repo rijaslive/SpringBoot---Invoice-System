@@ -1,4 +1,4 @@
-package com.bolsadeideas.springboot.app.util.paginator;
+package com.bolsadeideas.springboot.app.util;
 
 import com.bolsadeideas.springboot.app.models.dao.IUserDao;
 import com.bolsadeideas.springboot.app.models.entity.User;

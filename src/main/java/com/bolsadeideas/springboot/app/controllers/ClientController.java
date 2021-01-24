@@ -3,7 +3,7 @@ package com.bolsadeideas.springboot.app.controllers;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.text.DateFormat;
-import java.time.LocalDate;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.Collection;
@@ -14,6 +14,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import com.bolsadeideas.springboot.app.dto.CashBookDto;
 import com.bolsadeideas.springboot.app.models.entity.CashBook;
 import com.bolsadeideas.springboot.app.models.entity.TransactionMode;
 import com.bolsadeideas.springboot.app.models.entity.TransactionType;
@@ -26,6 +27,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -116,32 +118,19 @@ public class ClientController {
 			HttpServletRequest request,
 			Locale locale) {
 		if(authentication != null) {
-			log.info("El usuario actual es " + authentication.getName());
+			log.info("User " + authentication.getName());
 		}
-		/*
-		 * También podemos obtener acceso a authentication sin inyectarlo, a través del
-		 * método estático SecurityContextHolder.getContext().getAuthentication();
-		 * Ésto nos permite utilizarla en cualquier clase
-		 */
-		
-		//Comprobamos si el usuario tiene el rol necesario para este recurso
+
 		if(hasRole("ROLE_ADMIN")) {
-			log.info("El usuario tiene el role necesario para acceder a éste recurso");
+			log.info("Access granted");
 		}else {
-			log.error("El usuario NO tiene el role necesario para acceder a éste recurso");
+			log.info("Access restricted");
 		}
-		//De esta manera podemos hacer lo mismo, sin tener que implementar el método hasRole()
-		/*SecurityContextHolderAwareRequestWrapper securityContext = new SecurityContextHolderAwareRequestWrapper(request, "ROLE_");
-		if(securityContext.isUserInRole("ADMIN")) {
-			log.info("Usando SecurityContextHolderAwareRequestWrapper: El usuario tiene el role necesario para acceder a éste recurso");
-		}else {
-			log.info("Usando SecurityContextHolderAwareRequestWrapper: El usuario NO tiene el role necesario para acceder a éste recurso");
-		}*/
-		//Esta es otra manera más de hacer lo mismo, pero utilizando el objeto request inyectado al método
+
 		if(request.isUserInRole("ROLE_ADMIN")) {
-			log.info("Usando HttpServletRequest: El usuario tiene el role necesario para acceder a éste recurso");
+			log.info("Access granted");
 		}else {
-			log.info("Usando HttpServletRequest: El usuario NO tiene el role necesario para acceder a éste recurso");
+			log.info("Access restricted");
 		}
 		
 		//Pageable pageRequest = new PageRequest(page, 5);
@@ -156,17 +145,26 @@ public class ClientController {
 
 	@Secured("ROLE_ADMIN")
 	@RequestMapping(value="/form", method=RequestMethod.GET)
-	public String loadCashbookEntryPage(Map<String, Object> model) {
+	public String loadCashbookEntryPage( @RequestParam(name="page", defaultValue="0") int pageNumber,
+										Model model,
+										Authentication authentication,
+										HttpServletRequest request,
+										Locale locale) {
 		List<TransactionMode> transactionModes = cashBookService.findAllTransactionModes();
 		List<TransactionType> transactionTypes = cashBookService.findAllTransactionTypes();
-
 		CashBook cashBook = new CashBook();
-		LocalDate today = LocalDate.now();
-		model.put("title", "Cashbook Entry");
-		model.put("date", LocalDate.now().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL)))	;
-		model.put("cashBook", cashBook);
-		model.put("transactionTypes", transactionTypes);
-		model.put("transactionModes", transactionModes);
+		model.addAttribute("title", "Cashbook Entry");
+		model.addAttribute("date", LocalDate.now().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL)))	;
+		model.addAttribute("cashBook", cashBook);
+		model.addAttribute("transactionTypes", transactionTypes);
+		model.addAttribute("transactionModes", transactionModes);
+//		model.addAttribute("cashbookList",cashBookService.fetchAllCashBooksByDate());
+
+		Pageable pageRequest = PageRequest.of(pageNumber, 3, Sort.by("createdTime").descending());	//Spring Boot 2
+		Page<CashBookDto> cashBookPage = cashBookService.findPaginatedCashBooksByDate(pageRequest,LocalDate.now());
+		PageRender<CashBookDto> render = new PageRender<>("/form", cashBookPage);
+		model.addAttribute("cashbookList", cashBookPage);
+		model.addAttribute("page", render);
 		return "/form";
 	}
 

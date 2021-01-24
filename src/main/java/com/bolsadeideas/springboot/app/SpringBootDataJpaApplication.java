@@ -1,5 +1,6 @@
 package com.bolsadeideas.springboot.app;
 
+import org.h2.tools.Server;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -42,8 +43,8 @@ public class SpringBootDataJpaApplication implements CommandLineRunner {
 	 * @return H2 Server instance
 	 * @throws SQLException
 	 */
-//	@Bean(initMethod = "start", destroyMethod = "stop")
-//	public Server h2Server() throws SQLException {
-//		return Server.createTcpServer("-tcp", "-tcpAllowOthers", "-tcpPort", "5432",  "-ifNotExists", "-web", "-webAdminPassword","admin");
-//	}
+	@Bean(initMethod = "start", destroyMethod = "stop")
+	public Server h2Server() throws SQLException {
+		return Server.createTcpServer("-tcp", "-tcpAllowOthers", "-tcpDaemon", "-tcpPort", "5432",  "-ifNotExists", "-web", "-webAdminPassword","admin");
+	}
 }

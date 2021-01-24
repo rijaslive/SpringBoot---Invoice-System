@@ -1,8 +1,13 @@
 package com.bolsadeideas.springboot.app.models.entity;
 
 import lombok.Data;
+import org.springframework.data.domain.Auditable;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.Date;
 
 /**
@@ -12,6 +17,8 @@ import java.util.Date;
 @Table(name="cash_book")
 @Data
 public class CashBook {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,13 +30,18 @@ public class CashBook {
 
     private Double discount;
 
-    @Temporal(TemporalType.DATE)
-    private Date createdTime;
+//    @Temporal(TemporalType.TIMESTAMP)
+//    private Date createdTime;
 
-    @Temporal(TemporalType.DATE)
-    private Date updatedDate;
+    @Column(name = "createdTime", columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime createdTime;
 
-    @Column(unique = true)
+//    @Temporal(TemporalType.TIMESTAMP)
+//    private Date updatedDate;
+
+    @Column(name = "updatedDate", columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime updatedDate;
+
     private boolean deleted;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -45,8 +57,18 @@ public class CashBook {
     private User user;
 
 
-/*    @PrePersist
-    public void prePersist() {
-        createdTime = new Date();
-    }*/
+    @PrePersist
+    public void setCreatedOn() {
+        this.setCreatedTime(OffsetDateTime.now());
+        this.setUpdatedDate(OffsetDateTime.now());
+    }
+
+    @PreUpdate
+    public void setUpdatedOn() {
+        this.setUpdatedDate(OffsetDateTime.now());
+    }
+
+    public String getCreatedDateString(){
+        return this.createdTime.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL));
+    }
 }

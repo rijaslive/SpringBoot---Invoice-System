@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="/layout/layout :: head">
+<head th:replace="/layout/layout :: head"></head>
+<head>
+	<link rel="stylesheet" th:href="@{customstyles/style.css}"/>
 </head>
 <body>
+<script type="text/javascript" th:src="@{/controller/form-controller.js}"></script>
 	<header th:replace="/layout/layout :: header"></header>
 
 	<div class="container py-4">
@@ -23,12 +26,17 @@
 					</ul>
 				</div>
 
-				<form th:action="@{/form}" th:object="${cashBook}" method="post" >
+				<form th:action="@{/form}" th:object="${cashBook}" method="post" id="form">
+
+					<div class="row">
+						<table th:replace="/layout/cashbook_list :: cashbook_list"></table>
+					</div>
+
 					<div class="form-group row">
 						<label class="col-sm-2 col-form-label">Item</label>
 						<div class="col-sm-6">
 							<input type="text" th:field="*{particular}" class="form-control"
-								th:errorclass="'form-control alert-danger'" /> <small
+								th:errorclass="'form-control alert-danger'" required autofocus/> <small
 								th:if="${#fields.hasErrors('particular')}" th:errors="*{particular}"
 								class="form-text text-danger"></small>
 						</div>
@@ -60,9 +68,9 @@
 						<label class="col-sm-2 col-form-label">Amount</label>
 						<div class="col-sm-6">
 							<input type="number" th:field="*{amount}" class="form-control"
-								th:errorclass="'form-control alert-danger'" /> <small
+								th:errorclass="'form-control alert-danger'" required /> <small
 								th:if="${#fields.hasErrors('amount')}"
-								th:errors="*{amount}" class="form-text text-danger"></small>
+								th:errors="*{amount}" class="form-text text-danger" ></small>
 						</div>
 					</div>
 					

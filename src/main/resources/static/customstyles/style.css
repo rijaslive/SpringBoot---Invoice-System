@@ -1,0 +1,51 @@
+/*
+table.scroll {
+    width: 100%;  */
+/* Optional *//*
+
+    border-collapse: collapse;
+    border-spacing: 0;
+    border: 1px solid white;
+}
+
+table.scroll tbody,
+table.scroll thead { display: block; }
+
+thead tr th {
+    height: 30px;
+    line-height: 30px;
+    text-align: left;
+}
+
+table.scroll tbody {
+    height: 500px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+tbody { border-top: 2px solid white; }
+
+tbody td, thead th {
+    width: 20%; */
+/* Optional *//*
+
+    border-right: 1px solid white;
+    */
+/* white-space: nowrap; *//*
+
+}
+
+tbody td:last-child, thead th:last-child {
+    border-right: none;
+}*/
+
+
+.pagination{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+table.font-size tr td { font-size: 10pt !important; }
+table.font-size th td { font-size: 10pt !important; }
+table.font-size tr td a{ font-size: 10pt !important; }
