@@ -2,13 +2,22 @@ package com.bolsadeideas.springboot.app.controllers;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.text.DateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import com.bolsadeideas.springboot.app.models.entity.CashBook;
+import com.bolsadeideas.springboot.app.models.entity.TransactionMode;
+import com.bolsadeideas.springboot.app.models.entity.TransactionType;
+import com.bolsadeideas.springboot.app.service.CashBookService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,14 +72,12 @@ public class ClientController {
 
 	@Autowired
 	private MessageSource messageSource;
+
+	@Autowired
+	private CashBookService cashBookService;
 	
 	
-	//Método para cargar imágenes
-	//El parametro {filename:.+} lo escribimos como expresión regular
-	//ya que si no Spring eliminaría la extensión del mismo (del archivo)
-	//y la necesitamos para buscar el fichero en el equipo.
-	//Cuando la vista intenta cargar la imagen desde la carpeta uploads
-	//este método es llamado
+
 	@Secured("ROLE_USER")
 	@GetMapping(value="/uploads/{filename:.+}")
 	public ResponseEntity<Resource> verFoto(@PathVariable String filename){
@@ -148,16 +155,37 @@ public class ClientController {
 	}
 
 	@Secured("ROLE_ADMIN")
-	@RequestMapping(value="/form")
-	public String crear(Map<String, Object> model) {
-		Client client = new Client();
-		model.put("title", "Formulario de cliente");
-		model.put("client", client);
+	@RequestMapping(value="/form", method=RequestMethod.GET)
+	public String loadCashbookEntryPage(Map<String, Object> model) {
+		List<TransactionMode> transactionModes = cashBookService.findAllTransactionModes();
+		List<TransactionType> transactionTypes = cashBookService.findAllTransactionTypes();
+
+		CashBook cashBook = new CashBook();
+		LocalDate today = LocalDate.now();
+		model.put("title", "Cashbook Entry");
+		model.put("date", LocalDate.now().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL)))	;
+		model.put("cashBook", cashBook);
+		model.put("transactionTypes", transactionTypes);
+		model.put("transactionModes", transactionModes);
 		return "/form";
 	}
 
-	//@Secured("ROLE_ADMIN")
-	@PreAuthorize("hasRole('ROLE_ADMIN')")	//La anotación @PreAuthorize es igual que @Secured, solo que permite más control
+	@Secured("ROLE_ADMIN")
+	@RequestMapping(value="/form", method=RequestMethod.POST)
+	public String createCashbookEntry( CashBook cashBook, BindingResult result, Model model, RedirectAttributes flash, SessionStatus sessionStatus) {
+		if(result.hasErrors()) {
+			model.addAttribute("title", "Cashbook Entry");
+			return "/form";
+		}
+
+		String message = cashBook.getCashBookId() != null ? "Successfully edited cashbook entry" : "Successfully created cashbook entry";
+		cashBookService.createCashBookEntry(cashBook);
+		sessionStatus.setComplete();
+		flash.addFlashAttribute("success", message);
+		return "redirect:form";
+	}
+
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@RequestMapping(value="/form/{id}")
 	public String editar(@PathVariable(value="id") Long id, Map<String, Object> model, RedirectAttributes flash) {
 		if(id > 0) {
@@ -176,51 +204,7 @@ public class ClientController {
 		}
 	}
 
-	@Secured("ROLE_ADMIN")
-	@RequestMapping(value="/form", method=RequestMethod.POST)
-	public String guardar(@Valid Client client, BindingResult result, Model model, @RequestParam("file") MultipartFile photo, RedirectAttributes flash, SessionStatus sessionStatus) {
-		if(result.hasErrors()) {
-			model.addAttribute("title", "Formulario de cliente");
-			return "/form";
-		}
-		if(!photo.isEmpty()) {
-			/*
-			 * Podrían utilizarse las dos lineas siguientes para 
-			 * guardar las imagenes subidas a una carpeta dentro
-			 * de la estructura del proyecto, pero ésto está 
-			 * desaconsejado. Lo mejor es desacoplarla y guardar
-			 * los archivos en una carpeta externa.
-			 */
-			//Path resources = Paths.get("src/main/resources/static/uploads");
-			//String rootPath = resources.toFile().getAbsolutePath();
-			//String rootPath = "C://Temp//uploads";
 
-			//Añadimos al nombre de la imagen un "unique id"
-			//para asegurarnos de que no se repiten
-
-			//Si el usuario ya tenía foto, eliminamos la antigua
-			if(client.getId() != null && client.getId() > 0
-					&& client.getPhoto() != null
-					&& client.getPhoto().length() > 0) {
-				uploadFileService.delete(client.getPhoto());
-			}
-			String uniqueFileName = null;
-			try {
-				uniqueFileName = uploadFileService.copy(photo);
-			}catch(IOException e) {
-				e.printStackTrace();
-			}
-			flash.addFlashAttribute(
-					"info", 
-					"Imagen subida correctamente (" + uniqueFileName + ")");
-			client.setPhoto(uniqueFileName);
-		}
-		String message = client.getId() != null ? "Cliente editado con éxito" : "Cliente creado con éxito";
-		clientService.save(client);
-		sessionStatus.setComplete();
-		flash.addFlashAttribute("success", message);
-		return "redirect:clientes";
-	}
 
 	@Secured("ROLE_ADMIN")
 	@RequestMapping(value="/eliminar/{id}")

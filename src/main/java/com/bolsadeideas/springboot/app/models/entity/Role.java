@@ -11,9 +11,7 @@ import javax.persistence.UniqueConstraint;
 
 @Entity
 @Table(name="authorities", uniqueConstraints= {@UniqueConstraint(columnNames= {"user_id", "authority"})})
-//El parámetro uniqueContraints permite establecer las restricciones de clave única que se deben
-//establecer al crear la tabla. En este caso, se creará una restricción unique 
-//conformada por los campos user_id y authority
+
 public class Role implements Serializable{
 
 	private static final long serialVersionUID = 1L;

@@ -36,6 +36,9 @@ public class User implements Serializable{
 	@JoinColumn(name="user_id")
 	private List<Role> roles;
 
+	@OneToMany(mappedBy = "user", fetch=FetchType.LAZY, cascade=CascadeType.ALL, orphanRemoval=true)
+	private List<CashBook> cashBooks;
+
 	public Long getId() {
 		return id;
 	}

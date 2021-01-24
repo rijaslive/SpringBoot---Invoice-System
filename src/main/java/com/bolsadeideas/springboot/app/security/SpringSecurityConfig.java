@@ -1,4 +1,4 @@
-package com.bolsadeideas.springboot.app;
+package com.bolsadeideas.springboot.app.security;
 
 import javax.sql.DataSource;
 
@@ -33,19 +33,15 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter{
 	@Autowired
 	private JPAUserDetailsService userDetailsService;
 
+	private boolean enabled = true;
+	private boolean accountNonExpired = true;
+	private boolean credentialsNonExpired = true;
+	private boolean accountNonLocked = true;
+
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		//Aquí especificamos los roles necesarios para acceder a
-		//cada ruta. La forma "larga" es especificar cada acceso a rutas aquí,
-		//pero tambien se puede hacer directamente en el controlador, utilizando
-		//la anotación @Secured(role) en cada método
 		http.authorizeRequests()
 		.antMatchers("/", "/css/**", "/js/**", "/img/**", "/clientes", "/locale").permitAll()
-		//.antMatchers("/ver/**").hasAnyRole("USER")
-		//.antMatchers("/uploads/**").hasAnyRole("USER")
-		//.antMatchers("/form/**").hasAnyRole("ADMIN")
-		//.antMatchers("/eliminar/**").hasAnyRole("ADMIN")
-		//.antMatchers("/factura/**").hasAnyRole("ADMIN")
 		.anyRequest().authenticated()
 		.and()
 		.formLogin().successHandler(successHandler)
@@ -58,31 +54,6 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter{
 
 	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder build) throws Exception{
-		//Este código permite implementar usuarios "in memory"
-		//UserBuilder users = User.withDefaultPasswordEncoder(); //Spring Boot 1.5.10
-		/*PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder(); //Spring Boot 2
-		UserBuilder users = User.builder().passwordEncoder(encoder::encode);	//Spring Boot 2
-		build.inMemoryAuthentication()
-		.withUser(
-				users.username("admin")
-				.password("admin")
-				.roles("ADMIN", "USER"))
-		.withUser(
-				users.username("cristian")
-				.password("cristian")
-				.roles("USER"));*/
-
-		//Este código permite implementar usuarios con base de datos a través de JDBC
-		//Hay que indicarle las queries a ejecutar para hacer login y obtener los roles del usuario
-		/*build.jdbcAuthentication().dataSource(dataSource).passwordEncoder(passwordEncoder)
-		.usersByUsernameQuery("SELECT USERNAME, PASSWORD, ENABLED FROM USERS WHERE USERNAME=?")
-		.authoritiesByUsernameQuery(
-				"SELECT U.USERNAME, A.AUTHORITY "
-						+ "FROM AUTHORITIES A INNER JOIN USERS U "
-						+ "ON (A.USER_ID = U.ID) "
-						+ "WHERE U.USERNAME=?");*/
-		
-		//Este código permite implementar usuarios con base de datos a través de JPA.
 		build.userDetailsService(userDetailsService)
 		.passwordEncoder(passwordEncoder);
 	}

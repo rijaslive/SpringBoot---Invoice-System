@@ -4,9 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.bolsadeideas.springboot.app.models.service.IUploadFileService;
+
+import java.sql.SQLException;
 
 @SpringBootApplication
 public class SpringBootDataJpaApplication implements CommandLineRunner {
@@ -32,4 +35,15 @@ public class SpringBootDataJpaApplication implements CommandLineRunner {
 			System.out.println("bcryptPassword = " + bcryptPassword);
 		}*/
 	}
+
+	/**
+	 * Start internal H2 server so we can query the DB from IDE
+	 *
+	 * @return H2 Server instance
+	 * @throws SQLException
+	 */
+//	@Bean(initMethod = "start", destroyMethod = "stop")
+//	public Server h2Server() throws SQLException {
+//		return Server.createTcpServer("-tcp", "-tcpAllowOthers", "-tcpPort", "5432",  "-ifNotExists", "-web", "-webAdminPassword","admin");
+//	}
 }

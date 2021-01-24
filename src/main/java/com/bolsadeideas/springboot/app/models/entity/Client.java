@@ -20,10 +20,13 @@ import javax.validation.constraints.NotNull;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
+
+import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
 @Entity
 @Table(name="clients")
+@Data
 public class Client implements Serializable{
 
 	private static final long serialVersionUID = 1L;
@@ -64,65 +67,6 @@ public class Client implements Serializable{
 		createdAt = new Date();
 	}*/
 
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getSurname() {
-		return surname;
-	}
-
-	public void setSurname(String surname) {
-		this.surname = surname;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public Date getCreatedAt() {
-		return createdAt;
-	}
-
-	public void setCreatedAt(Date createdAt) {
-		this.createdAt = createdAt;
-	}
-
-	public String getPhoto() {
-		return photo;
-	}
-
-	public void setPhoto(String photo) {
-		this.photo = photo;
-	}
-
-	public List<Invoice> getInvoices() {
-		return invoices;
-	}
-
-	public void setInvoices(List<Invoice> invoices) {
-		this.invoices = invoices;
-	}
-
-	public void addInvoice(Invoice invoice) {
-		this.invoices.add(invoice);
-	}
 
 	@Override
 	public String toString() {

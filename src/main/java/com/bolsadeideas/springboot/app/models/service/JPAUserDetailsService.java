@@ -3,6 +3,7 @@ package com.bolsadeideas.springboot.app.models.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.bolsadeideas.springboot.app.security.CurrentUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,19 +32,19 @@ public class JPAUserDetailsService implements UserDetailsService{
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		User user = userDao.findByUsername(username);
 		if(user == null) {
-			log.error("El usuario " + username + " no existe!");
-			throw new UsernameNotFoundException("El usuario " + username + " no existe!");
+			log.error("The user " + username + " not exists!");
+			throw new UsernameNotFoundException("The user " + username + " not exists!");
 		}
 		List<GrantedAuthority> authorities = new ArrayList<>();
 		for(Role role : user.getRoles()) {
-			log.info("Role del usuario: " + role.getAuthority());
+			log.info("User Role: " + role.getAuthority());
 			authorities.add(new SimpleGrantedAuthority(role.getAuthority()));
 		}
 		if(authorities.isEmpty()) {
-			log.error("El usuario " + username + " no tiene roles asignados!");
-			throw new UsernameNotFoundException("El usuario " + username + " no tiene roles asignados!");
+			log.error("The user " + username + " not assigned any roles!");
+			throw new UsernameNotFoundException("The user " + username + " not assigned any roles!");
 		}
-		return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), user.getEnabled(), true, true, true, authorities);
+		return new CurrentUser(user.getUsername(), user.getPassword(), user.getEnabled(), true, true, true, authorities, user.getId());
 	}
 
 
