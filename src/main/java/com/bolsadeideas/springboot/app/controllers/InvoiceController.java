@@ -55,7 +55,7 @@ public class InvoiceController {
 		return clientService.findByName(search);
 	}
 
-	@PostMapping("/form")
+	@PostMapping("/cashbook")
 	public String save(
 			@Valid Invoice invoice, 
 			BindingResult result,

@@ -11,5 +11,5 @@ import java.util.List;
 public interface CashBookRepository extends JpaRepository<CashBook, Long> {
 
    List<CashBook> findByUpdatedDateBetweenOrderByUpdatedDateDesc(OffsetDateTime start,OffsetDateTime end);
-   Page<CashBook> findByCreatedTimeBetween(OffsetDateTime start, OffsetDateTime end, Pageable pageable);
+   Page<CashBook> findByCreatedTimeBetweenAndDeleted(OffsetDateTime start, OffsetDateTime end,boolean isDeleted, Pageable pageable);
 }

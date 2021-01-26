@@ -23,8 +23,5 @@ public class TransactionMode {
 
     private boolean enable;
 
-    @OneToMany(mappedBy = "transactionMode", fetch=FetchType.LAZY)
-    private List<CashBook> cashBooks;
-
 
 }

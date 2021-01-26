@@ -55,6 +55,10 @@ public class CashBookService {
     public CashBook createCashBookEntry(CashBook cashBook){
         Optional<User> currentUser = userUtil.getCurrentUser();
         cashBook.setUser(currentUser.get());
+        if(cashBook.getCashBookId()!=null && cashBook.getCashBookId()!=0){
+            CashBook one = cashBookRepository.getOne(cashBook.getCashBookId());
+            cashBook.setCreatedTime(one.getCreatedTime());
+        }
         return cashBookRepository.save(cashBook);
     }
 
@@ -90,7 +94,7 @@ public class CashBookService {
     public Page<CashBookDto> findPaginatedCashBooksByDate(Pageable pageable, LocalDate localDate) {
         OffsetDateTime startTime = DateUtil.getOffsetDateTime(localDate, LocalTime.of(00, 00));
         OffsetDateTime endTime = DateUtil.getOffsetDateTime(localDate, LocalTime.of(23, 53));
-        Page<CashBook> currentPage = cashBookRepository.findByCreatedTimeBetween(startTime, endTime, pageable);
+        Page<CashBook> currentPage = cashBookRepository.findByCreatedTimeBetweenAndDeleted(startTime, endTime,false, pageable);
         List<CashBookDto> collect = currentPage.stream().map(cb -> CashBookDto.builder()
                .cashBookId(cb.getCashBookId())
                .item(cb.getParticular())
@@ -106,4 +110,9 @@ public class CashBookService {
         return bookPage;
     }
 
+    public CashBook getCashBookById(long cashbookId) {
+        CashBook one = cashBookRepository.getOne(cashbookId);
+        if (one==null) one = new CashBook();
+        return one;
+    }
 }

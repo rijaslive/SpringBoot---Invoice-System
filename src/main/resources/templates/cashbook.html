@@ -26,8 +26,8 @@
 					</ul>
 				</div>
 
-				<form th:action="@{/form}" th:object="${cashBook}" method="post" id="form">
-
+				<form th:action="@{/cashbook?(page=${page.currPage-1})}" th:object="${cashBook}" method="post" id="form">
+					<input type="hidden" th:field="*{cashBookId}" id="cashBookId">
 					<div class="row">
 						<table th:replace="/layout/cashbook_list :: cashbook_list"></table>
 					</div>

@@ -12,7 +12,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 
 import com.bolsadeideas.springboot.app.dto.CashBookDto;
 import com.bolsadeideas.springboot.app.models.entity.CashBook;
@@ -58,8 +57,8 @@ import com.bolsadeideas.springboot.app.util.paginator.PageRender;
 
 
 @Controller
-@SessionAttributes("client")
-public class ClientController {
+@SessionAttributes("cashbook")
+public class CashBookController {
 
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -111,7 +110,7 @@ public class ClientController {
 		return "/ver";
 	}
 
-	@RequestMapping(value= {"/clientes", "/"}, method=RequestMethod.GET)
+	@RequestMapping(value= {"/clientes"}, method=RequestMethod.GET)
 	public String listar(@RequestParam(name="page", defaultValue="0") int page, 
 			Model model, 
 			Authentication authentication,
@@ -144,43 +143,58 @@ public class ClientController {
 	}
 
 	@Secured("ROLE_ADMIN")
-	@RequestMapping(value="/form", method=RequestMethod.GET)
+	@RequestMapping(value={"/cashbook","/"}, method=RequestMethod.GET)
 	public String loadCashbookEntryPage( @RequestParam(name="page", defaultValue="0") int pageNumber,
+										 @RequestParam(name="cashbook_id", defaultValue="0") long cashbookId,
 										Model model,
 										Authentication authentication,
 										HttpServletRequest request,
 										Locale locale) {
+		CashBook cashBook;
+		if(cashbookId==0){
+			cashBook = new CashBook();
+		}else{
+			cashBook = cashBookService.getCashBookById(cashbookId) ;
+		}
+		createdPaginatedModel(pageNumber, model, cashBook);
+		return "/cashbook";
+	}
+
+	@Secured("ROLE_ADMIN")
+	@RequestMapping(value="/cashbook", method=RequestMethod.POST)
+	public String createCashbookEntry( @RequestParam(name="page", defaultValue="0") int pageNumber, CashBook cashBook, BindingResult result, Model model, RedirectAttributes flash, SessionStatus sessionStatus) {
+		if(result.hasErrors()) {
+			model.addAttribute("title", "Cashbook Entry");
+			return "/cashbook";
+		}
+
+		String message = "Successfully edited cashbook entry";
+		if (cashBook.getCashBookId()  == null) {
+		 	message = "Successfully created cashbook entry";
+			pageNumber = 0;
+		}
+		cashBookService.createCashBookEntry(cashBook);
+		sessionStatus.setComplete();
+		flash.addFlashAttribute("success", message);
+		createdPaginatedModel(pageNumber, model, cashBook);
+//		return "/cashbook";
+		return "redirect:cashbook?page="+pageNumber;
+	}
+
+	private void createdPaginatedModel(int pageNumber, Model model, CashBook cashBook) {
 		List<TransactionMode> transactionModes = cashBookService.findAllTransactionModes();
 		List<TransactionType> transactionTypes = cashBookService.findAllTransactionTypes();
-		CashBook cashBook = new CashBook();
 		model.addAttribute("title", "Cashbook Entry");
 		model.addAttribute("date", LocalDate.now().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL)))	;
 		model.addAttribute("cashBook", cashBook);
 		model.addAttribute("transactionTypes", transactionTypes);
 		model.addAttribute("transactionModes", transactionModes);
-//		model.addAttribute("cashbookList",cashBookService.fetchAllCashBooksByDate());
 
-		Pageable pageRequest = PageRequest.of(pageNumber, 3, Sort.by("createdTime").descending());	//Spring Boot 2
+		Pageable pageRequest = PageRequest.of(pageNumber, 3, Sort.by("cashBookId").descending());	//Spring Boot 2
 		Page<CashBookDto> cashBookPage = cashBookService.findPaginatedCashBooksByDate(pageRequest,LocalDate.now());
-		PageRender<CashBookDto> render = new PageRender<>("/form", cashBookPage);
+		PageRender<CashBookDto> render = new PageRender<>("/cashbook", cashBookPage);
 		model.addAttribute("cashbookList", cashBookPage);
 		model.addAttribute("page", render);
-		return "/form";
-	}
-
-	@Secured("ROLE_ADMIN")
-	@RequestMapping(value="/form", method=RequestMethod.POST)
-	public String createCashbookEntry( CashBook cashBook, BindingResult result, Model model, RedirectAttributes flash, SessionStatus sessionStatus) {
-		if(result.hasErrors()) {
-			model.addAttribute("title", "Cashbook Entry");
-			return "/form";
-		}
-
-		String message = cashBook.getCashBookId() != null ? "Successfully edited cashbook entry" : "Successfully created cashbook entry";
-		cashBookService.createCashBookEntry(cashBook);
-		sessionStatus.setComplete();
-		flash.addFlashAttribute("success", message);
-		return "redirect:form";
 	}
 
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -191,7 +205,7 @@ public class ClientController {
 			if(client != null) {
 				model.put("title", "Editar cliente");
 				model.put("client", client);
-				return "/form";
+				return "/cashbook";
 			}else {
 				flash.addFlashAttribute("error", "El ID no es válido");
 				return "redirect:/clientes";

@@ -44,12 +44,12 @@ public class CashBook {
 
     private boolean deleted;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "transaction_mode_id", nullable = false)
+    @OneToOne
+    @JoinColumn(name="transaction_mode_id")
     private TransactionMode transactionMode;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "transaction_type_id", nullable = false)
+    @OneToOne
+    @JoinColumn(name="transaction_type_id")
     private TransactionType transactionType;
 
     @ManyToOne(fetch = FetchType.LAZY)
