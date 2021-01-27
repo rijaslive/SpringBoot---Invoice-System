@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<entity-mappings ptype="MONOLITH" ppkg="com.bolsadeideas.springboot.app.models.entity" epkg="domain" v="5.4.3" rws="_16109846552122" Pws="_16109846552122" cws="_16109846552122" persistenceUnitName="DEFAULT_PU" sm="false" xs="false" id="_16109846552121" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <entity compositePrimaryKeyClass="Transaction_typePK" abs="false" class="Transaction_type" v="true" jbn="false" xre="false" m="false" rootElement="_16109846552121" id="_16109846702933">
+        <ath>RiJAS</ath>
+        <attributes>
+            <basic attribute-type="String" v="true" xvt="" name="type" id="_16109848386326">
+                <xwm/>
+                <xm/>
+            </basic>
+            <basic attribute-type="boolean" v="true" xvt="" name="enable" id="_16109848984187">
+                <xwm/>
+                <xm/>
+            </basic>
+            <one-to-many orp="false" collection-type="java.util.List" cit="java.util.ArrayList" connected-entity-id="_161098513478018" connected-attribute-id="_161098676571055" v="true" xvt="" name="cash_books" id="_161098676571056">
+                <xwm/>
+                <xm/>
+            </one-to-many>
+            <id attribute-type="Long" v="true" xvt="" name="id" id="_16109846703594">
+                <xwm/>
+                <xm/>
+                <generated-value strategy="DEFAULT"/>
+            </id>
+        </attributes>
+        <nq e="false" name="Transaction_type.findAll">
+            <query>Select e from Transaction_type e</query>
+        </nq>
+        <nq e="false" name="Transaction_type.findByType">
+            <query>Select t from Transaction_type t where t.type=:type</query>
+        </nq>
+        <nq e="false" name="Transaction_type.findByEnable">
+            <query>Select t from Transaction_type t where t.enable=:enable</query>
+        </nq>
+    </entity>
+    <entity compositePrimaryKeyClass="Transaction_modePK" abs="false" class="Transaction_mode" v="true" jbn="false" xre="false" m="false" rootElement="_16109846552121" id="_16109849413368">
+        <ath>RiJAS</ath>
+        <attributes>
+            <basic attribute-type="String" v="true" xvt="" name="mode" id="_161098500509412">
+                <xwm/>
+                <xm/>
+            </basic>
+            <basic attribute-type="boolean" v="true" xvt="" name="enable" id="_161098503604913">
+                <xwm/>
+                <xm/>
+                <column unique="true" nullable="true" insertable="true" updatable="true"/>
+            </basic>
+            <one-to-many orp="false" collection-type="java.util.List" cit="java.util.ArrayList" connected-entity-id="_161098513478018" connected-attribute-id="_161098675343052" v="true" xvt="" name="cash_books" id="_161098675343153">
+                <xwm/>
+                <xm/>
+            </one-to-many>
+            <id attribute-type="Long" v="true" xvt="" name="id" id="_16109849413369">
+                <xwm/>
+                <xm/>
+                <generated-value strategy="DEFAULT"/>
+            </id>
+        </attributes>
+        <nq e="false" name="Transaction_mode.findAll">
+            <query>Select e from Transaction_mode e</query>
+        </nq>
+        <nq e="false" name="Transaction_mode.findByMode">
+            <query>Select t from Transaction_mode t where t.mode=:mode</query>
+        </nq>
+        <nq e="false" name="Transaction_mode.findByEnable">
+            <query>Select t from Transaction_mode t where t.enable=:enable</query>
+        </nq>
+    </entity>
+    <entity compositePrimaryKeyType="D" compositePrimaryKeyClass="Cash_bookPK" noSQL="false" abs="false" class="Cash_book" v="true" jbn="false" xre="false" m="false" rootElement="_16109846552121" id="_161098513478018">
+        <ath>RiJAS</ath>
+        <attributes>
+            <basic attribute-type="String" v="true" xvt="" name="particular" id="_161098543820821">
+                <xwm/>
+                <xm/>
+            </basic>
+            <basic attribute-type="Double" v="true" xvt="" name="amount" id="_161098549757423">
+                <xwm/>
+                <xm/>
+                <bv>
+                    <pz/>
+                </bv>
+            </basic>
+            <basic attribute-type="Double" v="true" xvt="" name="discount" id="_161098562060324">
+                <xwm/>
+                <xm/>
+                <bv>
+                    <pz/>
+                </bv>
+            </basic>
+            <basic attribute-type="java.util.Date" v="true" xvt="" name="createdTime" ui="false" id="_161098606751334">
+                <xwm/>
+                <xm/>
+                <temporal>TIMESTAMP</temporal>
+            </basic>
+            <basic attribute-type="java.util.Date" v="true" xvt="" name="updatedDate" id="_161098601871133">
+                <xwm/>
+                <xm/>
+                <temporal>TIMESTAMP</temporal>
+            </basic>
+            <basic attribute-type="boolean" v="true" xvt="" name="deleted" id="_161098587849231">
+                <xwm/>
+                <xm/>
+                <column unique="true" nullable="true" insertable="true" updatable="true"/>
+            </basic>
+            <many-to-one optional="true" primaryKey="true" connected-entity-id="_16109849413368" connected-attribute-id="_161098675343153" v="true" xvt="" name="transaction_mode" id="_161098675343052">
+                <xwm/>
+                <xm/>
+            </many-to-one>
+            <many-to-one optional="true" primaryKey="true" connected-entity-id="_16109846702933" connected-attribute-id="_161098676571056" v="true" xvt="" name="transaction_type" id="_161098676571055">
+                <xwm/>
+                <xm/>
+            </many-to-one>
+            <id attribute-type="Long" v="true" xvt="" name="id" id="_161098513478119">
+                <xwm/>
+                <xm/>
+                <column unique="true" nullable="true" insertable="true" updatable="true"/>
+                <generated-value strategy="DEFAULT"/>
+            </id>
+        </attributes>
+        <nq e="false" name="Cash_book.findAll">
+            <query>Select e from Cash_book e</query>
+        </nq>
+        <nq e="false" name="Cash_book.findByParticular">
+            <query>Select c from Cash_book c where c.particular=:particular</query>
+        </nq>
+        <nq e="false" name="Cash_book.findByDiscount">
+            <query>Select c from Cash_book c where c.discount=:discount</query>
+        </nq>
+        <nq e="false" name="Cash_book.findByCreatedTime">
+            <query>Select c from Cash_book c where c.createdTime=:createdTime</query>
+        </nq>
+    </entity>
+    <c>
+        <ct>java.util.List</ct>
+        <ct>java.util.Set</ct>
+        <ct>java.util.Map</ct>
+        <ct>java.util.Collection</ct>
+        <cit>java.util.ArrayList</cit>
+        <cit>java.util.LinkedList</cit>
+        <cit>java.util.HashSet</cit>
+        <cit>java.util.TreeSet</cit>
+        <cit>java.util.HashMap</cit>
+    </c>
+    <wsl>
+        <ws n="Main" id="_16109846552122">
+            <i ref="_161098513478018" x="233" y="220"/>
+            <i ref="_16109849413368" x="385" y="26"/>
+            <i ref="_16109846702933" x="58" y="26"/>
+        </ws>
+    </wsl>
+</entity-mappings>
