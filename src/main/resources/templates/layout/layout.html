@@ -9,11 +9,13 @@
 	<link rel="stylesheet" th:href="@{css/bootstrap.min.css}"/>
 	<link rel="stylesheet" th:href="@{css/jquery-ui.min.css}"/>
 	<link rel="stylesheet" th:href="@{css/all.css}"/>
+	<link rel="stylesheet" th:href="@{css/css-loader.css}"/>
 
 	<!-- SCRIPTS -->
 	<script type="text/javascript" th:src="@{/js/jquery-3.5.1.js}"></script>
 	<script type="text/javascript" th:src="@{/js/jquery-ui.min.js}"></script>
 	<script type="text/javascript" th:src="@{/js/bootstrap4.min.js}"></script>
+	<script type="text/javascript" th:src="@{/controller/common.js}"></script>
 
 
 	
@@ -53,8 +55,6 @@
 			th:text="${info}">
 		</div>
 	</header>
-
-	<div class="container"></div>
 
 	<footer th:fragment="footer" class="container">
 		<hr />

@@ -21,7 +21,7 @@
                 <td th:text="${cashbook.mode}"></td>
                 <td sec:authorize="hasRole('ROLE_ADMIN')">
 <!--                    <a th:href="@{/cashbook?cashbook_id=} + ${cashbook.cashBookId}" class="btn btn-info btn-xs">-->
-                    <a th:href="@{/cashbook?(cashbook_id= ${cashbook.cashBookId},page=${page.currPage-1})}" class="btn btn-info btn-xs">
+                    <a onclick="showLoader()" th:href="@{/cashbook?(cashbook_id= ${cashbook.cashBookId},page=${page.currPage-1})}" class="btn btn-info btn-xs">
                         Edit
                     </a>
                 </td>

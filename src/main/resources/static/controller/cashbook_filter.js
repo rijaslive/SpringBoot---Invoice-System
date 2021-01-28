@@ -29,6 +29,7 @@ var formatDate = function (date) {
 
 
 var getCashBookEntries = function(){
+    showLoader();
     var start = $("#start").val();
     var end = $("#end").val();
 
@@ -79,6 +80,7 @@ var fillData = function(tableData, income, expense, status){
          $("#expense").val(0);
          $("#summary").fadeOut();
      }
+     hideLoader();
 
 }
 

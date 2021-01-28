@@ -7,6 +7,7 @@ $(document).ready(function(){
 });
 
 function deleteCashBookById(cashbookId){
+         showLoader();
          console.log("cashbookId:"+cashbookId);
          let itemCount = parseInt($('#itemCount').val(), 10);
          let currPage =  parseInt($('#currPage').val(), 10);
@@ -32,10 +33,17 @@ function deleteCashBookById(cashbookId){
                     currPage = currPage-1;
                 }
                 location.href = "/cashbook?page="+currPage;
+                hideLoader();
             },
             error: function(result) {
                console.error(result);
+               hideLoader();
             },
         });
 
     }
+
+ var submitForm = function(){
+    showLoader();
+    $("#form").submit();
+ }

@@ -9,6 +9,7 @@
 	<header th:replace="/layout/layout :: header"></header>
 
 	<div class="container py-4">
+		<div class="loader loader-default is-active" data-text data-blink></div>
 		<div class="card bg-dark text-white">
 			<div class="row">
 				<div class="card-header pull-left col-md-6"
@@ -78,8 +79,8 @@
 					
 					<div class="form-group row">
 						<div class="col-sm-6">
-							<input type="submit" th:if="${cashBook.cashBookId != null}" th:value="Update" class="btn btn-success"/>
-							<input type="submit" th:unless="${cashBook.cashBookId != null}" value="Add" class="btn btn-success"/>
+							<input type="button" onclick="submitForm()"  th:if="${cashBook.cashBookId != null}" th:value="Update" class="btn btn-success submit"/>
+							<input type="button" onclick="submitForm()"  th:unless="${cashBook.cashBookId != null}" value="Add" class="btn btn-success submit"/>
 						</div>
 					</div>
 				</form>
