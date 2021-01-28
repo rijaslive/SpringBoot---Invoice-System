@@ -14,6 +14,7 @@ import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
+import org.thymeleaf.extras.springsecurity4.dialect.SpringSecurityDialect;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
 
@@ -52,7 +53,7 @@ public class MvcConfig implements WebMvcConfigurer {	//Spring Boot 2.0.1.RELEASE
 	@Bean
 	public LocaleResolver localeResolver() {
 		SessionLocaleResolver localeResolver = new SessionLocaleResolver();
-		localeResolver.setDefaultLocale(new Locale("es", "ES"));
+		localeResolver.setDefaultLocale(new Locale("en", "IN"));
 		return localeResolver;
 	}
 	
@@ -70,6 +71,5 @@ public class MvcConfig implements WebMvcConfigurer {	//Spring Boot 2.0.1.RELEASE
 	public void addInterceptors(InterceptorRegistry registry) {
 		registry.addInterceptor(localeChangeInterceptor());
 	}
-	
-	
+
 }

@@ -49,3 +49,47 @@ tbody td:last-child, thead th:last-child {
 table.font-size tr td { font-size: 10pt !important; }
 table.font-size th td { font-size: 10pt !important; }
 table.font-size tr td a{ font-size: 10pt !important; }
+
+.table td, .table th {
+    padding: 0.25rem !important;
+    vertical-align: top;
+    border-top: 1px solid #dee2e6;
+}
+
+.pt-4, .py-4{
+    padding-top: 0.5rem !important;
+}
+
+.navbar{
+    padding: .2rem !important;
+}
+
+.card-body{
+    padding: .75rem !important;
+}
+
+.date-control {
+    display: inline-block;
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+
+.vertical-center {
+  margin: auto;
+}
+.export-button {
+    padding: 2px !important;
+     cursor: pointer;
+}
+
+.hidden{
+    display: none;
+}

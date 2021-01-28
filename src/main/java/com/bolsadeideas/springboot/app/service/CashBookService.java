@@ -5,11 +5,10 @@ import com.bolsadeideas.springboot.app.models.dao.CashBookRepository;
 import com.bolsadeideas.springboot.app.models.dao.TransactionModeRepository;
 import com.bolsadeideas.springboot.app.models.dao.TransactionTypeRepository;
 import com.bolsadeideas.springboot.app.models.entity.*;
-import com.bolsadeideas.springboot.app.security.CurrentUser;
 import com.bolsadeideas.springboot.app.util.DateUtil;
 import com.bolsadeideas.springboot.app.util.UserUtil;
-import com.bolsadeideas.springboot.app.util.paginator.PageRender;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
@@ -17,13 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 
 import java.awt.print.Book;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.time.*;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -72,7 +66,7 @@ public class CashBookService {
         return model;
     }
 
-    @Transactional(readOnly = true)
+/*    @Transactional(readOnly = true)
     public List<CashBookDto> fetchAllCashBooksByDate(){
         OffsetDateTime startTime = DateUtil.getOffsetDateTime(LocalDate.now(), LocalTime.of(00, 00));
         OffsetDateTime endTime = DateUtil.getOffsetDateTime(LocalDate.now(), LocalTime.of(23, 53));
@@ -89,6 +83,36 @@ public class CashBookService {
                      .build()).collect(Collectors.toList());
         }
         return new ArrayList<>();
+    }*/
+
+    @Transactional(readOnly = true)
+    public Map<String,Object> fetchAllCashBooksByFilter(Map<String,Object> requestObject){
+
+        OffsetDateTime start = DateUtil.getStringToDate(MapUtils.getString(requestObject,"start"));
+        OffsetDateTime end = DateUtil.getStringToEndDate(MapUtils.getString(requestObject,"end"));
+        Long mode = MapUtils.getLong(requestObject,"transactionMode",0L);
+        Long type = MapUtils.getLong(requestObject,"transactionType",0L);
+        List<CashBook> cashBooks = cashBookRepository.getCashBookByDateAndTransactionTypeAndTransactionMode(start,end,type,mode );
+        if(CollectionUtils.isNotEmpty(cashBooks)){
+            Map<String,Object> result = new HashMap<>();
+            List<CashBookDto> collect = cashBooks.stream().map(cb -> CashBookDto.builder()
+                    .cashBookId(cb.getCashBookId())
+                    .item(cb.getParticular())
+                    .type(cb.getTransactionType().getType())
+                    .mode(cb.getTransactionMode().getMode())
+                    .amount(cb.getAmount())
+                    .user(cb.getUser().getUsername())
+                    .date(cb.getCreatedDateString())
+                    .build()).collect(Collectors.toList());
+
+            Double totalIncome = cashBooks.stream().filter(cashbook -> cashbook.getTransactionType().getTransactionTypeId() == 1).collect(Collectors.summingDouble(cashbook -> cashbook.getAmount()));
+            Double totalExpense = cashBooks.stream().filter(cashbook -> cashbook.getTransactionType().getTransactionTypeId() == 2).collect(Collectors.summingDouble(cashbook -> cashbook.getAmount()));
+            result.put("cashbooks",collect);
+            result.put("totalIncome",totalIncome);
+            result.put("totalExpense",totalExpense);
+            return result;
+        }
+        return new HashMap<>();
     }
 
     public Page<CashBookDto> findPaginatedCashBooksByDate(Pageable pageable, LocalDate localDate) {
@@ -114,5 +138,13 @@ public class CashBookService {
         CashBook one = cashBookRepository.getOne(cashbookId);
         if (one==null) one = new CashBook();
         return one;
+    }
+
+    public void deleteCashBookEntry(long cashbookId) {
+        CashBook one = cashBookRepository.getOne(cashbookId);
+        if (one!=null) {
+             one.setDeleted(true);
+            cashBookRepository.save(one);
+        }
     }
 }

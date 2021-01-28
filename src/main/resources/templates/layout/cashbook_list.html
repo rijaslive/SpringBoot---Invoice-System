@@ -26,7 +26,7 @@
                     </a>
                 </td>
                 <td sec:authorize="hasRole('ROLE_ADMIN')">
-                    <a th:href="@{/delete/} + ${cashbook.cashBookId}" class="btn btn-danger btn-xs" onclick="return confirm('Are you sure')">
+                    <a class="btn btn-danger btn-xs"  th:onclick="|deleteCashBookById(${cashbook.cashBookId})|">
                          Remove
                     </a>
                 </td>

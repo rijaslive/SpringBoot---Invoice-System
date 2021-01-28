@@ -1,27 +1,41 @@
+var _ctx = $("meta[name='_ctx']").attr("content");
 $(document).ready(function(){
-
     setTimeout(function(){
         $( ".alert" ).fadeOut( "slow" );
     }, 3000);
 
-
-
-    /*// Change the selector if needed
-    var $table = $('table.scroll'),
-        $bodyCells = $table.find('tbody tr:first').children(),
-        colWidth;
-
-    // Adjust the width of thead cells when window resizes
-    $(window).resize(function() {
-        // Get the tbody columns width array
-        colWidth = $bodyCells.map(function() {
-            return $(this).width();
-        }).get();
-
-        // Set the width of thead columns
-        $table.find('thead tr').children().each(function(i, v) {
-            $(v).width(colWidth[i]);
-        });
-    }).resize(); // Trigger resize handler*/
-
 });
+
+function deleteCashBookById(cashbookId){
+         console.log("cashbookId:"+cashbookId);
+         let itemCount = parseInt($('#itemCount').val(), 10);
+         let currPage =  parseInt($('#currPage').val(), 10);
+         console.log("itemCount:" +itemCount);
+         console.log("currPage:" +currPage);
+
+         let requestJson = {
+            "itemCount": itemCount,
+            "currPage": currPage,
+            "cashbookId": parseInt(cashbookId, 10)
+         };
+        $.ajax({
+            url: '/cashbook/delete',
+            data: JSON.stringify(requestJson),
+            type: 'POST',
+            dataType: "json",
+            contentType: 'application/json',
+            success: function(result) {
+                console.log(result);
+                if(itemCount==1){
+                    currPage = currPage-2;
+                }else{
+                    currPage = currPage-1;
+                }
+                location.href = "/cashbook?page="+currPage;
+            },
+            error: function(result) {
+               console.error(result);
+            },
+        });
+
+    }

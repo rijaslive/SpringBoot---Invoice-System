@@ -14,10 +14,12 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import com.bolsadeideas.springboot.app.dto.CashBookDto;
+import com.bolsadeideas.springboot.app.dto.ResponseDto;
 import com.bolsadeideas.springboot.app.models.entity.CashBook;
 import com.bolsadeideas.springboot.app.models.entity.TransactionMode;
 import com.bolsadeideas.springboot.app.models.entity.TransactionType;
 import com.bolsadeideas.springboot.app.service.CashBookService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -40,12 +43,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -181,6 +179,19 @@ public class CashBookController {
 		return "redirect:cashbook?page="+pageNumber;
 	}
 
+	@Secured("ROLE_ADMIN")
+	@RequestMapping(value="/cashbook/delete", method=RequestMethod.POST,
+			produces = MediaType.APPLICATION_JSON_VALUE,consumes  = MediaType.APPLICATION_JSON_VALUE	)
+	public ResponseEntity<ResponseDto> deleteCashbookEntry(@RequestBody Map<String,Long> requestJson) {
+
+		cashBookService.deleteCashBookEntry(requestJson.get("cashbookId"));
+		return ResponseEntity.ok(ResponseDto.builder()
+		.response("Deleted Cashbook entry")
+		.code("200")
+		.stataus("success")
+		.build());
+	}
+
 	private void createdPaginatedModel(int pageNumber, Model model, CashBook cashBook) {
 		List<TransactionMode> transactionModes = cashBookService.findAllTransactionModes();
 		List<TransactionType> transactionTypes = cashBookService.findAllTransactionTypes();
@@ -190,11 +201,13 @@ public class CashBookController {
 		model.addAttribute("transactionTypes", transactionTypes);
 		model.addAttribute("transactionModes", transactionModes);
 
-		Pageable pageRequest = PageRequest.of(pageNumber, 3, Sort.by("cashBookId").descending());	//Spring Boot 2
+		Pageable pageRequest = PageRequest.of(pageNumber<1?0:pageNumber, 3, Sort.by("cashBookId").descending());	//Spring Boot 2
 		Page<CashBookDto> cashBookPage = cashBookService.findPaginatedCashBooksByDate(pageRequest,LocalDate.now());
 		PageRender<CashBookDto> render = new PageRender<>("/cashbook", cashBookPage);
 		model.addAttribute("cashbookList", cashBookPage);
 		model.addAttribute("page", render);
+		model.addAttribute("itemCount", CollectionUtils.size(render.getPage().getContent()));
+		model.addAttribute("currPage", render.getCurrPage());
 	}
 
 	@PreAuthorize("hasRole('ROLE_ADMIN')")

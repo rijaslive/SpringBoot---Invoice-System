@@ -18,14 +18,14 @@ public class LoginController {
 			@RequestParam(value="error", required=false) String error,
 			@RequestParam(value="logout", required=false) String logout) {	//la ruta /login como vista del formulario de login
 		if(principal != null) {	//El usuario ya ha iniciado sesión
-			flash.addFlashAttribute("info", "Ya has iniciado sesión");
+			flash.addFlashAttribute("info", "Login success");
 			return "redirect:/";
 		}
 		if(error != null) {
-			model.addAttribute("error", "Usuario y/o password incorrecto");
+			model.addAttribute("error", "Username or Password incorrect");
 		}
 		if(logout != null) {
-			model.addAttribute("info", "Has cerrado sesión");
+			model.addAttribute("info", "Successfully log out from app");
 		}
 		return "/login";
 	}

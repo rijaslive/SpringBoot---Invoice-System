@@ -28,6 +28,8 @@
 
 				<form th:action="@{/cashbook?(page=${page.currPage-1})}" th:object="${cashBook}" method="post" id="form">
 					<input type="hidden" th:field="*{cashBookId}" id="cashBookId">
+					<input type="hidden" th:value="${itemCount}" id="itemCount">
+					<input type="hidden" th:value="${currPage}" id="currPage">
 					<div class="row">
 						<table th:replace="/layout/cashbook_list :: cashbook_list"></table>
 					</div>
@@ -76,8 +78,8 @@
 					
 					<div class="form-group row">
 						<div class="col-sm-6">
-							<input type="submit" value="Add"
-								class="btn btn-success" />
+							<input type="submit" th:if="${cashBook.cashBookId != null}" th:value="Update" class="btn btn-success"/>
+							<input type="submit" th:unless="${cashBook.cashBookId != null}" value="Add" class="btn btn-success"/>
 						</div>
 					</div>
 				</form>

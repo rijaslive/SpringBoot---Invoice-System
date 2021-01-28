@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:fragment="head">
-	<meta charset="UTF-8"></meta>
+	<meta charset="UTF-8"/>
+	<meta name="ctx" th:content="${#httpServletRequest.getContextPath()}" />
 	<title th:text="'Manjaly Bakes - ' + ${title}"></title>
 	
 	<!-- CSS -->
 	<link rel="stylesheet" th:href="@{css/bootstrap.min.css}"/>
 	<link rel="stylesheet" th:href="@{css/jquery-ui.min.css}"/>
+	<link rel="stylesheet" th:href="@{css/all.css}"/>
 
 	<!-- SCRIPTS -->
 	<script type="text/javascript" th:src="@{/js/jquery-3.5.1.js}"></script>
@@ -29,42 +31,11 @@
 			<div class="collapse navbar-collapse">
 				<ul class="navbar-nav mr-auto">
 					<li class="nav-item active"><a class="nav-link" href="#"
-						th:href="@{/clientes}" th:text="#{text.layout.clients}"></a></li>
+						th:href="@{/cashbookfilter}">Report</a></li>
 				</ul>
-				<ul class="navbar-nav navbar-right">
-					<li sec:authorize="!isAuthenticated()"><a
-						class="btn btn-outline-primary" th:href="@{/login}" th:text="#{text.layout.login}"></a></li>
-					<li sec:authorize="isAuthenticated()" class="dropdown show"><a
-						class="btn btn-outline-primary dropdown-toggle" href="#"
-						role="button" id="dropdownMenuLink" data-toggle="dropdown"
-						aria-haspopup="true" aria-expanded="false"><span
-							sec:authentication="name"></span></a>
-						<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-							<form th:action="@{/logout}" method="post" id="logoutForm">
-								<button onclick="document.getElementById('logoutForm').submit();"
-									class="dropdown-item" th:text="#{text.layout.logout}"></button>
-							</form>
-						</div></li>
-				</ul>
-				<ul class="navbar-nav navbar-right mx-4">
-					<!-- SELECTOR DE IDIOMA CON DROPDOWN -->
-					<li class="dropdown show">
-						<a class="btn btn-outline-primary dropdown-toggle" href="#"
-							role="button" id="dropdownLanguage" data-toggle="dropdown"
-							aria-haspopup="true" aria-expanded="false" th:text="#{text.language.language}">
-						</a>
-						<div class="dropdown-menu" aria-labelledby="dropdownLanguage">
-							<a th:href="@{/locale(lang=es_ES)}" class="dropdown-item" th:text="#{text.language.es}"></a>
-							<a th:href="@{/locale(lang=en_US)}" class="dropdown-item" th:text="#{text.language.en}"></a>
-						</div>
-					</li>
-					<!-- SELECTOR DE IDIOMA CON BOTONES -->
-					<!-- <li class="nav-item mx-1">
-						<a href="?lang=es_ES" class="btn btn-outline-success">ES</a>
-					</li>
-					<li class="nav-item mx-1">
-						<a href="?lang=en_US" class="btn btn-outline-success">EN</a>
-					</li>  -->
+				<ul class="navbar-nav navbar-right" sec:authorize="isAuthenticated()">
+					<li><a
+						class="btn btn-outline-primary" th:href="@{/logout}">Log Out</a></li>
 				</ul>
 			</div>
 		</nav>
