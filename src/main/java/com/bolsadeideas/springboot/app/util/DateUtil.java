@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 
 public class DateUtil {
 
@@ -18,6 +19,9 @@ public class DateUtil {
         return OffsetDateTime.of(localDate,localTime,systemOffset);
     }
 
+    public static String getDateToString(OffsetDateTime offsetDateTime){
+        return offsetDateTime.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL));
+    }
     public static String getDateToString(LocalDateTime localDateTime){
         return localDateTime.format(DATE_TIME_FORMATTER);
     }

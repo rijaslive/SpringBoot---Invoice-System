@@ -1,6 +1,9 @@
 package com.bolsadeideas.springboot.app.models.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Auditable;
 
 import javax.persistence.*;
@@ -16,6 +19,9 @@ import java.util.Date;
 @Entity
 @Table(name="cash_book")
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class CashBook {
 
     private static final long serialVersionUID = 1L;

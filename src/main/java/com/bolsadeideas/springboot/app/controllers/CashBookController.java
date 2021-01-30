@@ -1,8 +1,6 @@
 package com.bolsadeideas.springboot.app.controllers;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
-import java.text.DateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -14,12 +12,13 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import com.bolsadeideas.springboot.app.dto.CashBookDto;
+import com.bolsadeideas.springboot.app.dto.CashBookItemDto;
+import com.bolsadeideas.springboot.app.dto.PaginatedData;
 import com.bolsadeideas.springboot.app.dto.ResponseDto;
 import com.bolsadeideas.springboot.app.models.entity.CashBook;
 import com.bolsadeideas.springboot.app.models.entity.TransactionMode;
 import com.bolsadeideas.springboot.app.models.entity.TransactionType;
 import com.bolsadeideas.springboot.app.service.CashBookService;
-import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +44,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.bolsadeideas.springboot.app.models.entity.Client;
@@ -154,11 +152,11 @@ public class CashBookController {
 		}else{
 			cashBook = cashBookService.getCashBookById(cashbookId) ;
 		}
-		createdPaginatedModel(pageNumber, model, cashBook);
+		createdModel(pageNumber, model, cashBook);
 		return "/cashbook";
 	}
 
-	@Secured("ROLE_ADMIN")
+/*	@Secured("ROLE_ADMIN")
 	@RequestMapping(value="/cashbook", method=RequestMethod.POST)
 	public String createCashbookEntry( @RequestParam(name="page", defaultValue="0") int pageNumber, CashBook cashBook, BindingResult result, Model model, RedirectAttributes flash, SessionStatus sessionStatus) {
 		if(result.hasErrors()) {
@@ -174,10 +172,25 @@ public class CashBookController {
 		cashBookService.createCashBookEntry(cashBook);
 		sessionStatus.setComplete();
 		flash.addFlashAttribute("success", message);
-		createdPaginatedModel(pageNumber, model, cashBook);
+		createdModel(pageNumber, model, cashBook);
 //		return "/cashbook";
 		return "redirect:cashbook?page="+pageNumber;
+	}*/
+
+	@Secured("ROLE_ADMIN")
+	@RequestMapping(value="/cashbook", method=RequestMethod.POST,
+			produces = MediaType.APPLICATION_JSON_VALUE,consumes  = MediaType.APPLICATION_JSON_VALUE	)
+	public ResponseEntity<ResponseDto> createOrEditCashbookEntry(@RequestBody CashBookItemDto cashBookItemDto) {
+		CashBookDto cashBookDto =  cashBookService.createCashBookEntry(cashBookItemDto);
+		ResponseDto response = ResponseDto.builder()
+				.code("200")
+				.stataus("Sucess")
+				.response(cashBookDto)
+				.build();
+		return ResponseEntity.ok(response);
 	}
+
+
 
 	@Secured("ROLE_ADMIN")
 	@RequestMapping(value="/cashbook/delete", method=RequestMethod.POST,
@@ -192,7 +205,22 @@ public class CashBookController {
 		.build());
 	}
 
-	private void createdPaginatedModel(int pageNumber, Model model, CashBook cashBook) {
+	@Secured("ROLE_ADMIN")
+	@RequestMapping(value="/cashbook/load", method=RequestMethod.GET,
+			produces = MediaType.APPLICATION_JSON_VALUE	)
+	public ResponseEntity<PaginatedData> loadData(@RequestParam(defaultValue="0") Integer page , @RequestParam(defaultValue="3") Integer size) {
+
+		Pageable pageRequest = PageRequest.of(page-1<1?0:page-1, size, Sort.by("cashBookId").descending());	//Spring Boot 2
+		Page<CashBookDto> cashBookPage = cashBookService.findPaginatedCashBooksByDate(pageRequest,LocalDate.now());
+		PaginatedData paginatedData = PaginatedData.builder().
+				data(cashBookPage.getContent())
+				.last_page(cashBookPage.getTotalPages())
+				.build();
+		return ResponseEntity.ok(paginatedData);
+	}
+
+
+	private void createdModel(int pageNumber, Model model, CashBook cashBook) {
 		List<TransactionMode> transactionModes = cashBookService.findAllTransactionModes();
 		List<TransactionType> transactionTypes = cashBookService.findAllTransactionTypes();
 		model.addAttribute("title", "Cashbook Entry");
@@ -201,13 +229,13 @@ public class CashBookController {
 		model.addAttribute("transactionTypes", transactionTypes);
 		model.addAttribute("transactionModes", transactionModes);
 
-		Pageable pageRequest = PageRequest.of(pageNumber<1?0:pageNumber, 3, Sort.by("cashBookId").descending());	//Spring Boot 2
-		Page<CashBookDto> cashBookPage = cashBookService.findPaginatedCashBooksByDate(pageRequest,LocalDate.now());
-		PageRender<CashBookDto> render = new PageRender<>("/cashbook", cashBookPage);
-		model.addAttribute("cashbookList", cashBookPage);
-		model.addAttribute("page", render);
-		model.addAttribute("itemCount", CollectionUtils.size(render.getPage().getContent()));
-		model.addAttribute("currPage", render.getCurrPage());
+//		Pageable pageRequest = PageRequest.of(pageNumber<1?0:pageNumber, 3, Sort.by("cashBookId").descending());	//Spring Boot 2
+//		Page<CashBookDto> cashBookPage = cashBookService.findPaginatedCashBooksByDate(pageRequest,LocalDate.now());
+//		PageRender<CashBookDto> render = new PageRender<>("/cashbook", cashBookPage);
+//		model.addAttribute("cashbookList", cashBookPage);
+//		model.addAttribute("page", render);
+//		model.addAttribute("itemCount", CollectionUtils.size(render.getPage().getContent()));
+//		model.addAttribute("currPage", render.getCurrPage());
 	}
 
 	@PreAuthorize("hasRole('ROLE_ADMIN')")

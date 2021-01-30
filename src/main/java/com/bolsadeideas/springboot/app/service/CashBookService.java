@@ -1,6 +1,7 @@
 package com.bolsadeideas.springboot.app.service;
 
 import com.bolsadeideas.springboot.app.dto.CashBookDto;
+import com.bolsadeideas.springboot.app.dto.CashBookItemDto;
 import com.bolsadeideas.springboot.app.models.dao.CashBookRepository;
 import com.bolsadeideas.springboot.app.models.dao.TransactionModeRepository;
 import com.bolsadeideas.springboot.app.models.dao.TransactionTypeRepository;
@@ -15,7 +16,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import java.awt.print.Book;
+import java.math.BigInteger;
 import java.time.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,6 +38,9 @@ public class CashBookService {
 
     @Autowired
     UserUtil userUtil;
+
+    @Autowired
+    EntityManager entityManager;
 
     @Transactional(readOnly = true)
     public List<TransactionMode> findAllTransactionModes(){
@@ -55,6 +62,43 @@ public class CashBookService {
         }
         return cashBookRepository.save(cashBook);
     }
+
+
+    @Transactional
+    public CashBookDto  createCashBookEntry(CashBookItemDto bookItemDto){
+        Optional<User> currentUser = userUtil.getCurrentUser();
+        OffsetDateTime now = OffsetDateTime.now();
+        Query query = null;
+        if(bookItemDto.getCashBookId()==null){
+            query =  entityManager.createNativeQuery("INSERT INTO cash_book (particular, amount, created_time, " +
+                    "updated_date, transaction_mode_id, transaction_type_id, user_id, deleted) " +
+                    "VALUES (?,?,?,?,?,?,?,?) RETURNING cash_book_id");
+        }
+        query
+                .setParameter(1, bookItemDto.getItem())
+                .setParameter(2, bookItemDto.getAmount())
+                .setParameter(3, now)
+                .setParameter(4, now)
+                .setParameter(5, bookItemDto.getMode())
+                .setParameter(6, bookItemDto.getType())
+                .setParameter(7, currentUser.get().getId())
+                .setParameter(8, false);
+
+        BigInteger singleResult = (BigInteger) query.getSingleResult();
+
+        CashBookDto cashBookDto = CashBookDto.builder()
+                .cashBookId(singleResult.longValue())
+                .item(bookItemDto.getItem())
+                .amount(bookItemDto.getAmount())
+                .mode(bookItemDto.getModeString())
+                .type(bookItemDto.getTypeString())
+                .date(DateUtil.getDateToString(now))
+                .build();
+
+        return cashBookDto;
+
+    }
+
 
     @Transactional(readOnly = true)
     public Model fetchAllCashBooks(int page, Model model){
