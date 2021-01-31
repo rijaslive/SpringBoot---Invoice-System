@@ -18,7 +18,6 @@ import org.springframework.ui.Model;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import java.awt.print.Book;
 import java.math.BigInteger;
 import java.time.*;
 import java.util.*;
@@ -67,7 +66,7 @@ public class CashBookService {
     @Transactional
     public CashBookDto  createCashBookEntry(CashBookItemDto bookItemDto){
         Optional<User> currentUser = userUtil.getCurrentUser();
-        OffsetDateTime now = DateUtil.getOffsetDateTime(LocalDate.now(),LocalTime.now());
+        OffsetDateTime now = DateUtil.getOffsetDateTime();
         Query query = null;
         if(bookItemDto.getCashBookId()==null){
             query =  entityManager.createNativeQuery("INSERT INTO cash_book (particular, amount, created_time, " +
@@ -145,7 +144,7 @@ public class CashBookService {
     @Transactional(readOnly = true)
     public Map<String,Object> fetchAllCashBooksByFilter(Map<String,Object> requestObject){
 
-        OffsetDateTime start = DateUtil.getStringToDate(MapUtils.getString(requestObject,"start"));
+        OffsetDateTime start = DateUtil.getStringToStartDate(MapUtils.getString(requestObject,"start"));
         OffsetDateTime end = DateUtil.getStringToEndDate(MapUtils.getString(requestObject,"end"));
         Long mode = MapUtils.getLong(requestObject,"transactionMode",0L);
         Long type = MapUtils.getLong(requestObject,"transactionType",0L);
@@ -173,8 +172,8 @@ public class CashBookService {
     }
 
     public Page<CashBookDto> findPaginatedCashBooksByDate(Pageable pageable, LocalDate localDate) {
-        OffsetDateTime startTime = DateUtil.getOffsetDateTime(localDate, LocalTime.of(00, 00));
-        OffsetDateTime endTime = DateUtil.getOffsetDateTime(localDate, LocalTime.of(23, 53));
+        OffsetDateTime startTime = DateUtil.getOffsetDateTimeWithTime(0,0);
+        OffsetDateTime endTime = DateUtil.getOffsetDateTimeWithTime(23, 59);
         Page<CashBook> currentPage = cashBookRepository.findByCreatedTimeBetweenAndDeleted(startTime, endTime,false, pageable);
         int pageNumber = pageable.getPageNumber();
         int pageSize = pageable.getPageSize();

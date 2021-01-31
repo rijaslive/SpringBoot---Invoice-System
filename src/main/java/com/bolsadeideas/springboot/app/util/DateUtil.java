@@ -11,32 +11,34 @@ public class DateUtil {
 
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("MMM-dd-yyyy");
 
-    public static OffsetDateTime getOffsetDateTime(LocalDate localDate, LocalTime localTime){
-        Instant instant = Instant.now();
-        ZoneId systemZone = ZoneId.systemDefault(); // my timezone
-//        ZoneOffset systemOffset = systemZone.getRules().getOffset(instant);
+    private static OffsetDateTime getOffsetDateTime(LocalDate localDate, LocalTime localTime){
         ZoneOffset zoneOffSet= ZoneOffset.of("+05:30");
         return OffsetDateTime.of(localDate,localTime,zoneOffSet);
+    }
+
+    public static OffsetDateTime getOffsetDateTimeWithTime(int hour, int minutes ){
+        return getOffsetDateTime().withHour(hour).withMinute(minutes).withSecond(0);
+    }
+
+    public static OffsetDateTime getOffsetDateTime(){
+        return OffsetDateTime.now(ZoneId.of("Asia/Kolkata"));
     }
 
     public static String getDateToString(OffsetDateTime offsetDateTime){
         ZoneOffset zoneOffSet= ZoneOffset.of("+05:30");
         return offsetDateTime.withOffsetSameInstant(zoneOffSet).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL));
     }
-    public static String getDateToString(LocalDateTime localDateTime){
-        return localDateTime.format(DATE_TIME_FORMATTER);
-    }
 
-    public static OffsetDateTime getStringToDate(String date){
+    public static OffsetDateTime getStringToStartDate(String date){
         if(StringUtils.isEmpty(date)){
-            return getOffsetDateTime(LocalDate.now(),LocalTime.of(0,0));
+            return getOffsetDateTime().withHour(0).withMinute(0).withSecond(0);
         }
         return getOffsetDateTime(LocalDate.parse(date,DATE_TIME_FORMATTER),LocalTime.of(0,0));
     }
 
     public static OffsetDateTime getStringToEndDate(String date){
         if(StringUtils.isEmpty(date)){
-            return getOffsetDateTime(LocalDate.now(),LocalTime.of(23,59));
+            return getOffsetDateTime().withHour(23).withMinute(59).withSecond(59);
         }
         return getOffsetDateTime(LocalDate.parse(date,DATE_TIME_FORMATTER),LocalTime.of(23,59));
     }
