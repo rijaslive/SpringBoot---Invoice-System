@@ -14,6 +14,7 @@ import java.util.Date;
 public class CashBookDto {
 
     private Long cashBookId;
+    private Integer index;
     private String item;
     private Double amount;
     private String type;

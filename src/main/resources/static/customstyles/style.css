@@ -93,6 +93,10 @@ table.font-size tr td a{ font-size: 10pt !important; }
 .hidden{
     display: none;
 }
+
+.error{
+    color:#E32636;
+}
 /*
 .btn{
     padding: 5px !important;

@@ -19,6 +19,7 @@ import com.bolsadeideas.springboot.app.models.entity.CashBook;
 import com.bolsadeideas.springboot.app.models.entity.TransactionMode;
 import com.bolsadeideas.springboot.app.models.entity.TransactionType;
 import com.bolsadeideas.springboot.app.service.CashBookService;
+import com.bolsadeideas.springboot.app.util.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -182,11 +183,21 @@ public class CashBookController {
 			produces = MediaType.APPLICATION_JSON_VALUE,consumes  = MediaType.APPLICATION_JSON_VALUE	)
 	public ResponseEntity<ResponseDto> createOrEditCashbookEntry(@RequestBody CashBookItemDto cashBookItemDto) {
 		CashBookDto cashBookDto =  cashBookService.createCashBookEntry(cashBookItemDto);
-		ResponseDto response = ResponseDto.builder()
-				.code("200")
-				.stataus("Sucess")
-				.response(cashBookDto)
-				.build();
+		ResponseDto response;
+		if(cashBookItemDto.getCashBookId()==null){
+
+			 response = ResponseDto.builder()
+					.code("200")
+					.stataus("Sucess")
+					.response(cashBookDto)
+					.build();
+		}else {
+			 response = ResponseDto.builder()
+					.code("201")
+					.stataus("Sucess")
+					.response(cashBookDto)
+					.build();
+		}
 		return ResponseEntity.ok(response);
 	}
 
@@ -224,7 +235,7 @@ public class CashBookController {
 		List<TransactionMode> transactionModes = cashBookService.findAllTransactionModes();
 		List<TransactionType> transactionTypes = cashBookService.findAllTransactionTypes();
 		model.addAttribute("title", "Cashbook Entry");
-		model.addAttribute("date", LocalDate.now().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL)))	;
+		model.addAttribute("date", DateUtil.getOffsetDateTime(LocalDate.now(),LocalTime.now()).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL)));
 		model.addAttribute("cashBook", cashBook);
 		model.addAttribute("transactionTypes", transactionTypes);
 		model.addAttribute("transactionModes", transactionModes);

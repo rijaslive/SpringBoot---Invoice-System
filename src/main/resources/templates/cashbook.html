@@ -3,12 +3,10 @@
 <head th:replace="/layout/layout :: head"></head>
 <head>
 	<link rel="stylesheet" th:href="@{customstyles/style.css}"/>
-<!--	<link rel="stylesheet" th:href="@{css/tabulator.min.css}"/>-->
-	<link rel="stylesheet" th:href="@{css/tabulator_midnight.min.css}"/>
 </head>
 <body>
 <script type="text/javascript" th:src="@{/controller/form-controller.js}"></script>
-<script type="text/javascript" th:src="@{/js/tabulator.min.js}"></script>
+
 	<header th:replace="/layout/layout :: header"></header>
 
 	<div class="container py-4">
@@ -86,8 +84,9 @@
 					
 					<div class="form-group row">
 						<div class="col-sm-6">
-							<input type="button" onclick="submitForm()"  th:if="${cashBook.cashBookId != null}" th:value="Update" class="btn btn-success submit"/>
-							<input type="button" onclick="submitForm()"  th:unless="${cashBook.cashBookId != null}" value="Add" class="btn btn-success submit"/>
+<!--							<input type="button" onclick="submitForm()"  th:if="${cashBook.cashBookId != null}" th:value="Update" class="btn btn-success submit"/>-->
+							<input type="button" id="submit"   value="Save" class="btn btn-primary submit"/>
+							<input type="button" id="clear" onclick="resetForm()"   value="Clear" class="btn btn-warning submit"/>
 						</div>
 					</div>
 				</form>

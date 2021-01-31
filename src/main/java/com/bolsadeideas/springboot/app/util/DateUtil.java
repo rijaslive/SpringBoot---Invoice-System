@@ -14,13 +14,14 @@ public class DateUtil {
     public static OffsetDateTime getOffsetDateTime(LocalDate localDate, LocalTime localTime){
         Instant instant = Instant.now();
         ZoneId systemZone = ZoneId.systemDefault(); // my timezone
-        ZoneOffset systemOffset = systemZone.getRules().getOffset(instant);
-
-        return OffsetDateTime.of(localDate,localTime,systemOffset);
+//        ZoneOffset systemOffset = systemZone.getRules().getOffset(instant);
+        ZoneOffset zoneOffSet= ZoneOffset.of("+05:30");
+        return OffsetDateTime.of(localDate,localTime,zoneOffSet);
     }
 
     public static String getDateToString(OffsetDateTime offsetDateTime){
-        return offsetDateTime.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL));
+        ZoneOffset zoneOffSet= ZoneOffset.of("+05:30");
+        return offsetDateTime.withOffsetSameInstant(zoneOffSet).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL));
     }
     public static String getDateToString(LocalDateTime localDateTime){
         return localDateTime.format(DATE_TIME_FORMATTER);

@@ -67,22 +67,35 @@ public class CashBookService {
     @Transactional
     public CashBookDto  createCashBookEntry(CashBookItemDto bookItemDto){
         Optional<User> currentUser = userUtil.getCurrentUser();
-        OffsetDateTime now = OffsetDateTime.now();
+        OffsetDateTime now = DateUtil.getOffsetDateTime(LocalDate.now(),LocalTime.now());
         Query query = null;
         if(bookItemDto.getCashBookId()==null){
             query =  entityManager.createNativeQuery("INSERT INTO cash_book (particular, amount, created_time, " +
                     "updated_date, transaction_mode_id, transaction_type_id, user_id, deleted) " +
                     "VALUES (?,?,?,?,?,?,?,?) RETURNING cash_book_id");
+            query
+                    .setParameter(1, bookItemDto.getItem())
+                    .setParameter(2, bookItemDto.getAmount())
+                    .setParameter(3, now)
+                    .setParameter(4, now)
+                    .setParameter(5, bookItemDto.getMode())
+                    .setParameter(6, bookItemDto.getType())
+                    .setParameter(7, currentUser.get().getId())
+                    .setParameter(8, false);
+        }else {
+            query =  entityManager.createNativeQuery("UPDATE cash_book SET particular= ?, amount= ?, " +
+                    "updated_date= ?, transaction_mode_id= ?, transaction_type_id= ?, user_id= ?, deleted= ? " +
+                    "WHERE cash_book_id= ? RETURNING cash_book_id");
+            query
+                    .setParameter(1, bookItemDto.getItem())
+                    .setParameter(2, bookItemDto.getAmount())
+                    .setParameter(3, now)
+                    .setParameter(4, bookItemDto.getMode())
+                    .setParameter(5, bookItemDto.getType())
+                    .setParameter(6, currentUser.get().getId())
+                    .setParameter(7, false)
+                    .setParameter(8, bookItemDto.getCashBookId());
         }
-        query
-                .setParameter(1, bookItemDto.getItem())
-                .setParameter(2, bookItemDto.getAmount())
-                .setParameter(3, now)
-                .setParameter(4, now)
-                .setParameter(5, bookItemDto.getMode())
-                .setParameter(6, bookItemDto.getType())
-                .setParameter(7, currentUser.get().getId())
-                .setParameter(8, false);
 
         BigInteger singleResult = (BigInteger) query.getSingleResult();
 
@@ -163,7 +176,10 @@ public class CashBookService {
         OffsetDateTime startTime = DateUtil.getOffsetDateTime(localDate, LocalTime.of(00, 00));
         OffsetDateTime endTime = DateUtil.getOffsetDateTime(localDate, LocalTime.of(23, 53));
         Page<CashBook> currentPage = cashBookRepository.findByCreatedTimeBetweenAndDeleted(startTime, endTime,false, pageable);
-        List<CashBookDto> collect = currentPage.stream().map(cb -> CashBookDto.builder()
+        int pageNumber = pageable.getPageNumber();
+        int pageSize = pageable.getPageSize();
+/*        List<CashBookDto> collect = currentPage.stream().map(cb -> CashBookDto.builder()
+
                .cashBookId(cb.getCashBookId())
                .item(cb.getParticular())
                .type(cb.getTransactionType().getType())
@@ -171,7 +187,23 @@ public class CashBookService {
                .amount(cb.getAmount())
                .user(cb.getUser().getUsername())
                .date(cb.getCreatedDateString())
-               .build()).collect(Collectors.toList());
+               .build()).collect(Collectors.toList());*/
+        List<CashBookDto> collect = new ArrayList<>();
+        for(int index =1; index<=currentPage.getContent().size();index++){
+                 CashBook cb = currentPage.getContent().get(index-1);
+                 int rowIndex = (pageNumber * pageSize) + index;
+                 collect.add(CashBookDto.builder()
+                    .index(rowIndex)
+                    .cashBookId(cb.getCashBookId())
+                    .item(cb.getParticular())
+                    .type(cb.getTransactionType().getType())
+                    .mode(cb.getTransactionMode().getMode())
+                    .amount(cb.getAmount())
+                    .user(cb.getUser().getUsername())
+                    .date(cb.getCreatedDateString())
+                    .build());
+        }
+
         Page<CashBookDto> bookPage
                 = new PageImpl(collect, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()), currentPage.getTotalElements());
 

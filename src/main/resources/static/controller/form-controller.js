@@ -6,6 +6,19 @@ $(document).ready(function(){
         $( ".alert" ).fadeOut( "slow" );
     }, 3000);
 
+/*    $("#form").validate({
+        submitHandler: function (form) { // for demo
+           saveCashBook();
+        }
+    });*/
+
+    $('#submit').on('click', function () {
+         var valid = $('#form').valid();
+         if(valid){
+             saveCashBook();
+         }
+    });
+
      table = new Tabulator("#cashbook-table", {
         pagination:"remote", //enable remote pagination
         ajaxURL:"/cashbook/load", //set url for ajax request
@@ -16,21 +29,22 @@ $(document).ready(function(){
         layout:"fitColumns", //fit columns to width of table (optional)
         index:"cashBookId",
         paginationAddRow:"table",
+        selectable:1, //make rows selectable
         columns:[ //Define Table Columns
-            {title:"No.", field:"cashBookId", formatter:"rownum",  maxWidth:70},
+            {title:"No.", field:"index",  maxWidth:70},
             {title:"Item", field:"item", width:150},
             {title:"Amount", field:"amount", hozAlign:"right"},
             {title:"Type", field:"type"},
             {title:"Mode", field:"mode"},
             {title:"Date", field:"date", sorter:"date", hozAlign:"center"},
-            {title:"Edit", field:"cashBookId",maxWidth:100,hozAlign:"center",cellClick:function(e, cell){editCashbook(cell._cell.row.data)},  formatter:function(cell, formatterParams, onRendered){
+            {title:"Edit", field:"cashBookId",maxWidth:100,hozAlign:"center",cellClick:function(e, cell){editCashbook(cell._cell.row, cell._cell.row.data)},  formatter:function(cell, formatterParams, onRendered){
               //cell - the cell component
               //formatterParams - parameters set for the column
               //onRendered - function to call when the formatter has been rendered
 
                return '<span class="btn btn-info btn-xs"><i class="fas fa-edit"></i></span>'; //return the contents of the cell;
             }},
-            {title:"Remove", field:"cashBookId",maxWidth:100,hozAlign:"center",  formatter:function(cell, formatterParams, onRendered){
+            {title:"Remove", field:"cashBookId",maxWidth:100,hozAlign:"center", cellClick:function(e, cell){deleteCashBookById(cell._cell.row, cell._cell.row.data)},  formatter:function(cell, formatterParams, onRendered){
               //cell - the cell component
               //formatterParams - parameters set for the column
               //onRendered - function to call when the formatter has been rendered
@@ -39,7 +53,9 @@ $(document).ready(function(){
             }}
         ],
         rowClick:function(e, row){ //trigger an alert message when the row is clicked
-            alert("Row " + row.getData().cashBookId + " Clicked!!!!");
+            console.log(row);
+//            alert("Row " + row.getData().cashBookId + " Clicked!!!!");
+//            table.selectRow();
         },
 
 
@@ -52,7 +68,7 @@ $(document).ready(function(){
 function saveCashBook(){
          showLoader();
          let requestJson = {
-            "cashBookId": null,
+            "cashBookId": $("#cashBookId").val(),
             "item": $("#particular").val(),
             "amount": parseFloat($("#amount").val()),
             "type": $("#transactionTypes").val(),
@@ -68,12 +84,18 @@ function saveCashBook(){
             contentType: 'application/json',
             success: function(result) {
                 console.log(result);
-                addRow(result.response);
+                addRow(result.response, $("#cashBookId").val());
                 resetForm();
                 hideLoader();
+                if(result.code==="200"){
+                    showNotification("Successfully Saved Cashbook Entry","green")
+                }else if(result.code==="201"){
+                    showNotification("Successfully Updated Cashbook Entry","green")
+                }
             },
             error: function(result) {
-               console.error(result);
+               showNotification("Error while saving/updating cashbook entry","error")
+               resetForm();
                hideLoader();
             },
         });
@@ -81,18 +103,12 @@ function saveCashBook(){
 }
 
 
-function deleteCashBookById(cashbookId){
+function deleteCashBookById(row, data){
          showLoader();
-         console.log("cashbookId:"+cashbookId);
-         let itemCount = parseInt($('#itemCount').val(), 10);
-         let currPage =  parseInt($('#currPage').val(), 10);
-         console.log("itemCount:" +itemCount);
-         console.log("currPage:" +currPage);
+         console.log("cashBookId:"+data.cashBookId);
 
          let requestJson = {
-            "itemCount": itemCount,
-            "currPage": currPage,
-            "cashbookId": parseInt(cashbookId, 10)
+            "cashbookId": parseInt(data.cashBookId, 10)
          };
         $.ajax({
             url: '/cashbook/delete',
@@ -102,12 +118,8 @@ function deleteCashBookById(cashbookId){
             contentType: 'application/json',
             success: function(result) {
                 console.log(result);
-                if(itemCount==1){
-                    currPage = currPage-2;
-                }else{
-                    currPage = currPage-1;
-                }
-                location.href = "/cashbook?page="+currPage;
+                table.setPage(table.getPage());
+                showNotification("Deleted entry from cashbook","danger")
                 hideLoader();
             },
             error: function(result) {
@@ -119,16 +131,17 @@ function deleteCashBookById(cashbookId){
     }
 
 
- function editCashbook(data){
+ function editCashbook(row, data){
+            var rowPosition = table.getRowPosition(row, true);
+            table.selectRow(rowPosition);
             console.log("cashBookId:"+data.cashBookId);
-
+            $("#cashBookId").val(data.cashBookId);
+            $("#submit").prop('value', 'Update');
             $("#particular").val(data.item);
             $("#amount").val(data.amount);
             $("#transactionTypes").val($('#transactionTypes option').filter(function () { return $(this).html() === data.type; }).val());
             $("#transactionModes").val($('#transactionModes option').filter(function () { return $(this).html() === data.mode; }).val());
-
-
-     }
+ }
 
  var fillTable = function fillTable(data){
 
@@ -164,34 +177,63 @@ function deleteCashBookById(cashbookId){
  }
 
 
- var addRow = function(cashbook){
-
-     table.addRow(
-         {
-            cashBookId: cashbook.cashBookId,
-            item: cashbook.item,
-            amount:cashbook.amount,
-            type:cashbook.type,
-            mode:cashbook.mode,
-            date:cashbook.date
-        },true).then(function(row){
+ var addRow = function(cashbook,cashBookId){
+     if(!cashBookId){
+             /*table.addRow(
+                 {
+                    cashBookId: cashbook.cashBookId,
+                    item: cashbook.item,
+                    amount:cashbook.amount,
+                    type:cashbook.type,
+                    mode:cashbook.mode,
+                    date:cashbook.date
+                },true).then(function(row){
+                 //row - the row component for the row updated or added
+                 for(var i=1; i<=table.getRows().length;i++){
+                    if(i==table.getRows().length && i>3){
+                       table.getRows()[i-1].delete();
+                    }
+                 }
+             })
+             .catch(function(error){
+                 //handle error updating data
+             });*/
+            table.setPage(1);
+     }else{
          //row - the row component for the row updated or added
-         for(var i=1; i<=table.getRows().length;i++){
-            if(i==table.getRows().length && i>3){
-               table.getRows()[i-1].delete();
-            }
-         }
+          var rowIndex = 0;
+          for(var i=1; i<=table.getRows().length;i++){
+             if(cashBookId==table.getRows()[i-1]._row.data.cashBookId){
+               rowIndex = table.getRows()[i-1];
+             }
+          }
 
-         //run code after data has been updated
-     })
-     .catch(function(error){
-         //handle error updating data
-     });
+         table.updateRow(
+                rowIndex,{
+                    cashBookId: cashbook.cashBookId,
+                    item: cashbook.item,
+                    amount:cashbook.amount,
+                    type:cashbook.type,
+                    mode:cashbook.mode,
+                    date:cashbook.date
+                }
+         ).then(function(row){
+
+         })
+         .catch(function(error){
+             //handle error updating data
+         });
+     }
  }
 
  var resetForm = function(){
+    $("[id$=-error]").text("");
+    $("[id$=-error]").css("display", "none");
+    $("#cashBookId").val(null);
     $("#particular").val("");
     $("#amount").val("");
     $("#transactionModes").val(1);
     $("#transactionTypes").val(1);
+    $("#submit").prop('value', 'Save');
+    table.deselectRow();
  }
