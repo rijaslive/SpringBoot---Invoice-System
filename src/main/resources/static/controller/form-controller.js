@@ -102,6 +102,20 @@ function saveCashBook(){
 
 }
 
+ function editCashbook(row, data){
+            showLoader();
+            var rowPosition = table.getRowPosition(row, true);
+            table.selectRow(rowPosition);
+            console.log("cashBookId:"+data.cashBookId);
+            $("#cashBookId").val(data.cashBookId);
+            $("#submit").prop('value', 'Update');
+            $("#particular").val(data.item);
+            $("#amount").val(data.amount);
+            $("#transactionTypes").val($('#transactionTypes option').filter(function () { return $(this).html() === data.type; }).val());
+            $("#transactionModes").val($('#transactionModes option').filter(function () { return $(this).html() === data.mode; }).val());
+            hideLoader();
+ }
+
 
 function deleteCashBookById(row, data){
          showLoader();
@@ -130,18 +144,6 @@ function deleteCashBookById(row, data){
 
     }
 
-
- function editCashbook(row, data){
-            var rowPosition = table.getRowPosition(row, true);
-            table.selectRow(rowPosition);
-            console.log("cashBookId:"+data.cashBookId);
-            $("#cashBookId").val(data.cashBookId);
-            $("#submit").prop('value', 'Update');
-            $("#particular").val(data.item);
-            $("#amount").val(data.amount);
-            $("#transactionTypes").val($('#transactionTypes option').filter(function () { return $(this).html() === data.type; }).val());
-            $("#transactionModes").val($('#transactionModes option').filter(function () { return $(this).html() === data.mode; }).val());
- }
 
  var fillTable = function fillTable(data){
 

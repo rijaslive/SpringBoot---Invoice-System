@@ -235,7 +235,7 @@ public class CashBookController {
 		List<TransactionMode> transactionModes = cashBookService.findAllTransactionModes();
 		List<TransactionType> transactionTypes = cashBookService.findAllTransactionTypes();
 		model.addAttribute("title", "Cashbook Entry");
-		model.addAttribute("date", DateUtil.getOffsetDateTime(LocalDate.now(),LocalTime.now()).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL)));
+		model.addAttribute("date", DateUtil.getOffsetDateTime().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL)));
 		model.addAttribute("cashBook", cashBook);
 		model.addAttribute("transactionTypes", transactionTypes);
 		model.addAttribute("transactionModes", transactionModes);
